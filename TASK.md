@@ -36,7 +36,7 @@ Gruppengrösse: 1 Person
 - [ ] Überlegungen zum Design und mögliche Implementierung weiterer Loadbalancing-Methoden (Weighted Distribution oder Least Connections)
 
 ## Quellen
-[1] "The Java Tutorials - Trail RMI"; [online](http://docs.oracle.com/javase/tutorial/rmi/)
-[2] "Command Pattern"; Vince Huston; [online](http://vincehuston.org/dp/command.html)
-[3] "Fibonacci Number Program"; wikibooks; [online](https://en.wikibooks.org/wiki/Algorithm_Implementation/Mathematics/Fibonacci_Number_Program)
+[1] "The Java Tutorials - Trail RMI"; [online](http://docs.oracle.com/javase/tutorial/rmi/)  
+[2] "Command Pattern"; Vince Huston; [online](http://vincehuston.org/dp/command.html)  
+[3] "Fibonacci Number Program"; wikibooks; [online](https://en.wikibooks.org/wiki/Algorithm_Implementation/Mathematics/Fibonacci_Number_Program)  
 
