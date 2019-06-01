@@ -42,6 +42,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.sun.xml.internal.ws.api.pipe.Engine;
 import compute.Compute;
 import compute.Loadbalancer;
 import compute.Task;
@@ -49,7 +50,7 @@ import compute.Task;
 public class ComputeEngine implements Compute, Loadbalancer {
 
     private static final int REGISTRY_PORT = 1099;
-    private static final String STUB_NAME = "Compute";
+    private static final String COMPUTE_STUB_NAME = "Compute";
     private static final String CMD_EXIT = "exit";
 
     private List<Compute> computes;
@@ -78,6 +79,7 @@ public class ComputeEngine implements Compute, Loadbalancer {
 
     @Override
     public void register(Compute c) {
+        System.out.println("ComputerServer registered");
         if(computes.contains(c)) {
             return;
         }
@@ -86,6 +88,7 @@ public class ComputeEngine implements Compute, Loadbalancer {
 
     @Override
     public void unregister(Compute c) {
+        System.out.println("ComputerServer unregistered");
         computes.remove(c);
     }
 
@@ -97,11 +100,11 @@ public class ComputeEngine implements Compute, Loadbalancer {
         Registry registry;
 
         try {
-            Compute engine = new ComputeEngine();
-            Compute stub =
-                (Compute) UnicastRemoteObject.exportObject(engine, 0);
+            ComputeEngine computeEngine = new ComputeEngine();
+            Compute computeStub =
+                (Compute) UnicastRemoteObject.exportObject(computeEngine, 0);
             registry = LocateRegistry.createRegistry(REGISTRY_PORT);
-            registry.rebind(STUB_NAME, stub);
+            registry.rebind(COMPUTE_STUB_NAME, computeStub);
             System.out.println("ComputeEngine bound");
         } catch (Exception e) {
             System.err.println("ComputeEngine exception:");
@@ -118,7 +121,7 @@ public class ComputeEngine implements Compute, Loadbalancer {
                 cmd = cmd.toLowerCase();
                 if(cmd.startsWith(CMD_EXIT)) {
                     System.out.println("Exiting program...");
-                    registry.unbind(STUB_NAME);
+                    registry.unbind(COMPUTE_STUB_NAME);
                     System.exit(0);
                 } else {
                     System.out.println("Unknown command");
