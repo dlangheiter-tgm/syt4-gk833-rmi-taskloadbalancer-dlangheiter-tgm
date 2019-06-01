@@ -31,6 +31,10 @@
 
 package engine;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.rmi.NotBoundException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -38,6 +42,10 @@ import compute.Compute;
 import compute.Task;
 
 public class ComputeEngine implements Compute {
+
+    private static final int REGISTRY_PORT = 1099;
+    private static final String STUB_NAME = "Compute";
+    private static final String CMD_EXIT = "exit";
 
     public ComputeEngine() {
         super();
@@ -51,17 +59,46 @@ public class ComputeEngine implements Compute {
         if (System.getSecurityManager() == null) {
             System.setSecurityManager(new SecurityManager());
         }
+
+        Registry registry;
+
         try {
-            String name = "Compute";
             Compute engine = new ComputeEngine();
             Compute stub =
                 (Compute) UnicastRemoteObject.exportObject(engine, 0);
-            Registry registry = LocateRegistry.createRegistry(1099);
-            registry.rebind(name, stub);
+            registry = LocateRegistry.createRegistry(REGISTRY_PORT);
+            registry.rebind(STUB_NAME, stub);
             System.out.println("ComputeEngine bound");
         } catch (Exception e) {
             System.err.println("ComputeEngine exception:");
             e.printStackTrace();
+            System.exit(-1);
+            return;
+        }
+
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String cmd = "";
+        System.out.print("> ");
+        try {
+            while ((cmd = reader.readLine()) != null) {
+                cmd = cmd.toLowerCase();
+                if(cmd.startsWith(CMD_EXIT)) {
+                    System.out.println("Exiting program...");
+                    registry.unbind(STUB_NAME);
+                    System.exit(0);
+                } else {
+                    System.out.println("Unknown command");
+                }
+                System.out.print("> ");
+            }
+        } catch (IOException e) {
+            System.out.println("Error reading output stream.");
+            e.printStackTrace();
+            System.exit(-2);
+        } catch (NotBoundException e) {
+            System.out.println("Error unbinding Stub.");
+            e.printStackTrace();
+            System.exit(-3);
         }
     }
 }
