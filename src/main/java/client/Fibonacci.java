@@ -34,4 +34,11 @@ public class Fibonacci implements Task<Integer>, Serializable {
     public Integer execute() {
         return this.fibonacci(this.n);
     }
+
+    @Override
+    public String toString() {
+        return "Fibonacci{" +
+                "n=" + n +
+                '}';
+    }
 }
