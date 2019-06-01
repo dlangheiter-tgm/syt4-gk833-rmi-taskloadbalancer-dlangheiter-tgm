@@ -35,24 +35,58 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
+import java.util.List;
+
 import compute.Compute;
+import compute.Loadbalancer;
 import compute.Task;
 
-public class ComputeEngine implements Compute {
+public class ComputeEngine implements Compute, Loadbalancer {
 
     private static final int REGISTRY_PORT = 1099;
     private static final String STUB_NAME = "Compute";
     private static final String CMD_EXIT = "exit";
 
+    private List<Compute> computes;
+    private int computeIndex;
+
     public ComputeEngine() {
         super();
+        this.computes = new ArrayList<>();
+        this.computeIndex = 0;
     }
 
-    public <T> T executeTask(Task<T> t) {
-        return t.execute();
+    private Compute getCurrentCompute() {
+        this.computeIndex++;
+        if(this.computeIndex >= this.computes.size()) {
+            this.computeIndex = 0;
+        }
+        return computes.get(computeIndex);
+    }
+
+    public <T> T executeTask(Task<T> t) throws RemoteException {
+        if(this.computes.size() == 0) {
+            throw new IllegalStateException("No registered Server to handle executeTask.");
+        }
+        return getCurrentCompute().executeTask(t);
+    }
+
+    @Override
+    public void register(Compute c) {
+        if(computes.contains(c)) {
+            return;
+        }
+        computes.add(c);
+    }
+
+    @Override
+    public void unregister(Compute c) {
+        computes.remove(c);
     }
 
     public static void main(String[] args) {
